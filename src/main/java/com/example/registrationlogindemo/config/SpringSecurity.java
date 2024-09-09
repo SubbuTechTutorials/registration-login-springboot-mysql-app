@@ -29,17 +29,21 @@ public class SpringSecurity {
         http.csrf().disable()
                 .authorizeHttpRequests((authorize) ->
                         authorize.requestMatchers("/register/**").permitAll()
+                                .requestMatchers("/login/**").permitAll()  // Allow access to the login page
                                 .requestMatchers("/index").permitAll()
-                                .requestMatchers("/users").hasRole("ADMIN")
+				.requestMatchers("/error").permitAll()
+                                .requestMatchers("/users").hasRole("ADMIN")  // /users accessible by ADMIN only
+                                .anyRequest().authenticated()  // All other requests require authentication
                 ).formLogin(
                         form -> form
-                                .loginPage("/login")
+                                .loginPage("/login")  // Custom login page
                                 .loginProcessingUrl("/login")
-                                .defaultSuccessUrl("/users")
-                                .permitAll()
+                                .defaultSuccessUrl("/users", true)  // Redirect to /users after successful login
+                                .permitAll()  // Allow everyone to access the login page
                 ).logout(
                         logout -> logout
                                 .logoutRequestMatcher(new AntPathRequestMatcher("/logout"))
+                                .logoutSuccessUrl("/login?logout")  // Redirect to login page after logout
                                 .permitAll()
                 );
         return http.build();
@@ -52,3 +56,4 @@ public class SpringSecurity {
                 .passwordEncoder(passwordEncoder());
     }
 }
+
