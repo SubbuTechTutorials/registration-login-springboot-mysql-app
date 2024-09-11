@@ -9,9 +9,9 @@ In Stage 1, the Dockerfile pulls a Maven image with JDK to build the application
 
 I also set up a MySQL container using the official MySQL image and linked it to the Spring Boot app container with all the necessary environment variables. Once both containers are up, the application is accessible via the browser.
 
-============================================================================================================ 
+-------------------------------------------------------------------------------------------------------------------------------------------------
 						Steps to Implement this Project
-============================================================================================================
+-------------------------------------------------------------------------------------------------------------------------------------------------
 1. Create Dockerfile for Spring Boot Application
 As before, create a Dockerfile in your Spring Boot project to build and run the application in a container. 
 Here’s an example:
