@@ -8,7 +8,6 @@ I recently worked on this project where I cloned a this simple Spring Boot appli
 In Stage 1, the Dockerfile pulls a Maven image with JDK to build the application, and in Stage 2, it uses a lightweight JDK image to run the app by copying the JAR file from the build stage. 
 
 I also set up a MySQL container using the official MySQL image and linked it to the Spring Boot app container with all the necessary environment variables. Once both containers are up, the application is accessible via the browser.
---------------------------------------------------------------------------------------------------------------------------------------------------
 =================================================================================================================
 						Steps to Implement this Project
 =================================================================================================================
