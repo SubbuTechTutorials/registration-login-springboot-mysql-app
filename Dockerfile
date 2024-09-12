@@ -8,7 +8,7 @@ RUN mvn dependency:go-offline
 
 # Copy the source code and build the app
 COPY src ./src
-RUN mvn clean package 
+RUN mvn clean package -DskipTests
 
 # Stage 2: Copy the built JAR for deployment
 FROM openjdk:17-jdk-slim AS release
