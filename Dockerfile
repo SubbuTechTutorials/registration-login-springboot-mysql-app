@@ -14,7 +14,7 @@ RUN mvn clean package -DskipTests
 FROM sonarsource/sonar-scanner-cli:latest AS sonar-analysis
 WORKDIR /app
 
-# Switch to root to add group and user
+# Switch to root to manage permissions
 USER root
 
 # Create a new 'sonar' user with appropriate permissions
@@ -23,8 +23,11 @@ RUN addgroup --system sonar && adduser --system --ingroup sonar sonar
 # Create the scanner work directory and set permissions
 RUN mkdir -p /app/.scannerwork && chmod -R 777 /app/.scannerwork
 
+# Fix SonarScanner directory permissions
+RUN mkdir -p /opt/sonar-scanner/.sonar && chmod -R 777 /opt/sonar-scanner/.sonar
+
 # Change ownership of the working directory to 'sonar'
-RUN chown -R sonar:sonar /app
+RUN chown -R sonar:sonar /app /opt/sonar-scanner
 
 # Switch to the 'sonar' user
 USER sonar
