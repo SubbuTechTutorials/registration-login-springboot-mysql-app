@@ -14,12 +14,18 @@ RUN mvn clean package -DskipTests
 FROM sonarsource/sonar-scanner-cli:latest AS sonar-analysis
 WORKDIR /app
 
+# Switch to root user to handle permissions
+USER root
+
+# Create the scanner work directory and set permissions
+RUN mkdir -p /app/.scannerwork && chmod -R 777 /app/.scannerwork
+
+# Switch back to the default user (if needed)
+USER sonarqube
+
 # Set up environment variables for permissions
 ARG SONARQUBE_HOST
 ARG SONARQUBE_TOKEN
-
-# Create the scanner work directory and ensure the permissions are correct
-RUN mkdir -p /app/.scannerwork && chmod -R 777 /app/.scannerwork
 
 # Copy the source code and pom.xml for analysis
 COPY --from=build /app/src ./src
