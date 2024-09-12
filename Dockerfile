@@ -9,7 +9,6 @@ RUN mvn dependency:go-offline
 # Copy the source code and build the app
 COPY src ./src
 RUN mvn clean package -DskipTests
-
 # Stage 2: SonarQube code analysis
 FROM sonarsource/sonar-scanner-cli:latest AS sonar-analysis
 WORKDIR /app
@@ -17,12 +16,14 @@ WORKDIR /app
 # Switch to root to manage permissions
 USER root
 
+# Create the sonar user and group
+RUN addgroup --system sonar && adduser --system --ingroup sonar sonar
+
 # Create the scanner work directory and set permissions
 RUN mkdir -p /app/.scannerwork /opt/sonar-scanner/.sonar/cache
 RUN chown -R sonar:sonar /app/.scannerwork /opt/sonar-scanner/.sonar
 
 # Switch to non-root 'sonar' user for security
-RUN addgroup --system sonar && adduser --system --ingroup sonar sonar
 USER sonar
 
 # Set environment variables
