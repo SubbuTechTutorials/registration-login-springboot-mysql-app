@@ -3,7 +3,7 @@ FROM maven:3.8.4-openjdk-17 AS build
 WORKDIR /app
 
 # Copy pom.xml and download dependencies
-COPY pom.xml ./
+COPY pom.xml ./ 
 RUN mvn dependency:go-offline
 
 # Copy the source code and build the app
@@ -17,29 +17,25 @@ WORKDIR /app
 # Switch to root to manage permissions
 USER root
 
-# Create a new 'sonar' user with appropriate permissions
-RUN addgroup --system sonar && adduser --system --ingroup sonar sonar
-
 # Create the scanner work directory and set permissions
 RUN mkdir -p /app/.scannerwork && chmod -R 777 /app/.scannerwork
 RUN mkdir -p /opt/sonar-scanner/.sonar && chmod -R 777 /opt/sonar-scanner/.sonar
 
-# Change ownership of the working directory to 'sonar'
-RUN chown -R sonar:sonar /app /opt/sonar-scanner
-
-# Switch to the 'sonar' user
+# Switch to non-root user for security
+RUN addgroup --system sonar && adduser --system --ingroup sonar sonar
 USER sonar
 
-# Set up environment variables
+# Set environment variables
 ARG SONARQUBE_HOST
 ARG SONARQUBE_TOKEN
+ARG SONARQUBE_PROJECT_KEY
 
 # Copy the source code and compiled classes for analysis
 COPY --from=build /app/src ./src
 COPY --from=build /app/target/classes ./target/classes
 
-# Perform SonarQube analysis
-sonar-scanner -X \
+# Perform SonarQube analysis (project will be created if it doesn't exist)
+RUN sonar-scanner \
     -Dsonar.projectKey=${SONARQUBE_PROJECT_KEY} \
     -Dsonar.sources=./src \
     -Dsonar.java.binaries=./target/classes \
