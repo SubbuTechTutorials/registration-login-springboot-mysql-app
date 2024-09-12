@@ -14,13 +14,19 @@ RUN mvn clean package -DskipTests
 FROM sonarsource/sonar-scanner-cli:latest AS sonar-analysis
 WORKDIR /app
 
-# Switch to root user to handle permissions
-USER root
+# Create a new 'sonar' user with appropriate permissions
+RUN addgroup --system sonar && adduser --system --ingroup sonar sonar
 
 # Create the scanner work directory and set permissions
 RUN mkdir -p /app/.scannerwork && chmod -R 777 /app/.scannerwork
 
-# Set up environment variables for permissions
+# Change ownership of the working directory to 'sonar'
+RUN chown -R sonar:sonar /app
+
+# Switch to the 'sonar' user
+USER sonar
+
+# Set up environment variables
 ARG SONARQUBE_HOST
 ARG SONARQUBE_TOKEN
 
@@ -28,13 +34,12 @@ ARG SONARQUBE_TOKEN
 COPY --from=build /app/src ./src
 COPY --from=build /app/pom.xml ./pom.xml
 
-# Perform SonarQube analysis with full debug information
+# Perform SonarQube analysis
 RUN sonar-scanner \
     -Dsonar.projectKey=my-springboot-app \
     -Dsonar.sources=./src \
     -Dsonar.host.url=${SONARQUBE_HOST} \
-    -Dsonar.login=${SONARQUBE_TOKEN} \
-    -Dsonar.scanner.work.directory=/app/.scannerwork
+    -Dsonar.login=${SONARQUBE_TOKEN}
 
 # Stage 3: Copy the built JAR for deployment
 FROM openjdk:17-jdk-slim AS release
