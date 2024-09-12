@@ -31,14 +31,19 @@ RUN sonar-scanner \
 FROM openjdk:17-jdk-slim AS release
 WORKDIR /app
 
+# Accept the version of the app as a build argument
+ARG JAR_FILE_VERSION=0.0.1-SNAPSHOT
+
 # Copy the built JAR from the build stage
-COPY --from=build /app/target/registration-login-demo-0.0.1-SNAPSHOT.jar /app/app.jar
+COPY --from=build /app/target/registration-login-demo-${JAR_FILE_VERSION}.jar /app/app.jar
 
 # Optional: Push the JAR to Nexus from this stage
 ARG NEXUS_USERNAME
 ARG NEXUS_PASSWORD
 ARG NEXUS_REPO
-RUN curl -u ${NEXUS_USERNAME}:${NEXUS_PASSWORD} --upload-file /app/app.jar ${NEXUS_REPO}/com/example/springboot-app/0.0.1/app.jar
+RUN curl -u ${NEXUS_USERNAME}:${NEXUS_PASSWORD} \
+    --upload-file /app/app.jar \
+    ${NEXUS_REPO}/com/example/springboot-app/${JAR_FILE_VERSION}/app.jar
 
 # Stage 4: Final run stage (minimal JDK for running the app)
 FROM openjdk:17-jdk-slim
@@ -47,6 +52,8 @@ WORKDIR /app
 # Copy the built JAR from the release stage
 COPY --from=release /app/app.jar /app/app.jar
 
+# Expose the application port
+EXPOSE 8080
+
 # Run the Spring Boot application
 ENTRYPOINT ["java", "-jar", "/app/app.jar"]
-
