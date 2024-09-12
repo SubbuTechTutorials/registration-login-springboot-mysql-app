@@ -103,13 +103,14 @@
         </plugins>
     </build>
     <distributionManagement>
-        <repository>
-            <id>nexus-releases</id>
-            <url>${env.NEXUS_ARTIFACT_REPO}</url>
-        </repository>
-        <snapshotRepository>
-            <id>nexus-snapshots</id>
-            <url>${env.NEXUS_ARTIFACT_REPO}</url>
-        </snapshotRepository>
-    </distributionManagement>
+    <repository>
+        <id>nexus-releases</id>
+        <url>${env.NEXUS_RELEASE_REPO}</url>
+    </repository>
+    <snapshotRepository>
+        <id>nexus-snapshots</id>
+        <url>${env.NEXUS_SNAPSHOT_REPO}</url>
+    </snapshotRepository>
+</distributionManagement>
+
 </project>
