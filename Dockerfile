@@ -19,7 +19,7 @@ USER root
 
 # Create the scanner work directory and set permissions
 RUN mkdir -p /app/.scannerwork /opt/sonar-scanner/.sonar/cache
-RUN chown -R 1000:1000 /app/.scannerwork /opt/sonar-scanner/.sonar
+RUN chown -R sonar:sonar /app/.scannerwork /opt/sonar-scanner/.sonar
 
 # Switch to non-root 'sonar' user for security
 RUN addgroup --system sonar && adduser --system --ingroup sonar sonar
