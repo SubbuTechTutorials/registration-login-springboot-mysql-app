@@ -14,6 +14,9 @@ RUN mvn clean package -DskipTests
 FROM sonarsource/sonar-scanner-cli:latest AS sonar-analysis
 WORKDIR /app
 
+# Switch to root to add group and user
+USER root
+
 # Create a new 'sonar' user with appropriate permissions
 RUN addgroup --system sonar && adduser --system --ingroup sonar sonar
 
