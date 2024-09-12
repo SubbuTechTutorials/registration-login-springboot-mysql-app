@@ -20,9 +20,6 @@ USER root
 # Create the scanner work directory and set permissions
 RUN mkdir -p /app/.scannerwork && chmod -R 777 /app/.scannerwork
 
-# Switch back to the default user (if needed)
-USER sonarqube
-
 # Set up environment variables for permissions
 ARG SONARQUBE_HOST
 ARG SONARQUBE_TOKEN
