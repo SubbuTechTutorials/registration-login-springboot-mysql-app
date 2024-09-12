@@ -39,8 +39,8 @@ COPY --from=build /app/src ./src
 COPY --from=build /app/target/classes ./target/classes
 
 # Perform SonarQube analysis
-RUN sonar-scanner \
-    -Dsonar.projectKey=my-springboot-app \
+sonar-scanner -X \
+    -Dsonar.projectKey=${SONARQUBE_PROJECT_KEY} \
     -Dsonar.sources=./src \
     -Dsonar.java.binaries=./target/classes \
     -Dsonar.host.url=${SONARQUBE_HOST} \
