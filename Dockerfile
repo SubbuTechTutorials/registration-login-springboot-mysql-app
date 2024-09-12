@@ -3,7 +3,7 @@ FROM maven:3.8.4-openjdk-17 AS build
 WORKDIR /app
 
 # Copy pom.xml and download dependencies
-COPY pom.xml .
+COPY pom.xml ./
 RUN mvn dependency:go-offline
 
 # Copy the source code and build the app
@@ -14,18 +14,24 @@ RUN mvn clean package -DskipTests
 FROM sonarsource/sonar-scanner-cli:latest AS sonar-analysis
 WORKDIR /app
 
+# Set up environment variables for permissions
+ARG SONARQUBE_HOST
+ARG SONARQUBE_TOKEN
+
+# Create the scanner work directory and ensure the permissions are correct
+RUN mkdir -p /app/.scannerwork && chmod -R 777 /app/.scannerwork
+
 # Copy the source code and pom.xml for analysis
 COPY --from=build /app/src ./src
 COPY --from=build /app/pom.xml ./pom.xml
 
-# Perform SonarQube analysis
-ARG SONARQUBE_HOST
-ARG SONARQUBE_TOKEN
+# Perform SonarQube analysis with full debug information
 RUN sonar-scanner \
     -Dsonar.projectKey=my-springboot-app \
     -Dsonar.sources=./src \
     -Dsonar.host.url=${SONARQUBE_HOST} \
-    -Dsonar.login=${SONARQUBE_TOKEN}
+    -Dsonar.login=${SONARQUBE_TOKEN} \
+    -Dsonar.scanner.work.directory=/app/.scannerwork
 
 # Stage 3: Copy the built JAR for deployment
 FROM openjdk:17-jdk-slim AS release
