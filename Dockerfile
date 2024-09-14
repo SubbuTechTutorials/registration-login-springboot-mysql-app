@@ -10,12 +10,12 @@ RUN mvn dependency:go-offline
 COPY src ./src
 RUN mvn clean package -DskipTests
 
-# Accept the version of the app as a build argument
-ARG JAR_FILE_VERSION=0.0.1-SNAPSHOT
-
 # Stage 2: Copy the built JAR for deployment
 FROM openjdk:17-jdk-slim AS release
 WORKDIR /app
+
+# Accept the version of the app as a build argument
+ARG JAR_FILE_VERSION=0.0.1-SNAPSHOT
 
 # Copy the built JAR from the build stage
 COPY --from=build /app/target/registration-login-demo-${JAR_FILE_VERSION}.jar /app/app.jar
