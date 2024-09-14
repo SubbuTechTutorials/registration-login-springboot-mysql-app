@@ -1,0 +1,119 @@
+================================================================================
+					Steps for Implementing the Project
+================================================================================
+1. Fork the Souce code repository from my GITHUB
+2. Launch your Docker, SONARQUBE, NEXUS EC2-Servers
+3. Set Up Jenkins Docker Container
+First, ensure Jenkins is running in a container with access to the Docker daemon on the host machine. 
+You can do this by running the following command:
+------------------------------------------------------------------
+docker run --name jenkins \
+    -p 8080:8080 -p 50000:50000 \
+    -v /var/run/docker.sock:/var/run/docker.sock \
+    -v /usr/bin/docker:/usr/bin/docker \
+    -v jenkins_home:/var/jenkins_home \
+    --group-add 988 \
+    jenkins/jenkins:lts
+------------------------------------------------------------------
+==> -v /var/run/docker.sock:/var/run/docker.sock
+This mounts the Docker socket from the host into the container. 
+By doing this, Jenkins can communicate with the Docker daemon on the host, 
+allowing Jenkins jobs to run Docker commands inside the container.
+
+Why is this important? By sharing the Docker socket, Jenkins can use Docker to manage other containers 
+or build Docker images, even though it's running inside a Docker container itself. 
+
+==> -v /usr/bin/docker:/usr/bin/docker
+This mounts the Docker executable (/usr/bin/docker) from the host into the container. 
+It allows Jenkins to directly use the Docker CLI within the container to execute Docker commands.
+
+Why is this important? This lets Jenkins run Docker commands (like docker build, docker run, etc.) 
+from within the container, as if it were running on the host system.
+
+==> -v jenkins_home:/var/jenkins_home
+This mounts a Docker volume named jenkins_home to the Jenkins home directory inside the container (/var/jenkins_home).
+
+Why is this important? Jenkins stores all of its configuration, job data, plugins, and other information in the jenkins_home directory. 
+Mounting this directory ensures that all Jenkins data persists even if the container is stopped or deleted. 
+
+==> --group-add 988     (To get the docker group id: getent group docker)
+This option adds an additional group to the container’s Jenkins user. 
+In this case, it adds the Docker group (group ID 988).
+
+Why is this important? By adding the Jenkins user to the Docker group, Jenkins is granted permission 
+to access Docker commands on the host. This allows Jenkins jobs to run Docker commands without permission errors.
+----------------------------------------------------------------------------------------------------
+4. Open the Jenkins Port in Docker EC2 Server Security Group.
+5. Access your Jenkins Container on Browser and Get the admin password from the Jenkins Contianer using
+Docker exec.
+6. Install Neceessary Plugins for Jenkins
+Add some more from the Jenkins UI, install the following plugins:
+
+Docker Pipeline Plugin: To manage Docker containers.
+Pipeline Plugin: To handle Jenkins declarative pipelines.
+Pipeline Maven Integration Plugin
+SonarQube Scanner for Jenkins Plugin
+Blue Ocean Plugin
+7. Create Pipeline Job and add the Jenkinsfile code
+Update all URL's and other informaiton as per your EC2-Servers in the Jenkins Pipeline Code
+================================================================================
+				             Mandatory Steps
+================================================================================
+8. Save GITHUB, SONARQUBE, NEXUS, MYSQL CREDENTIALS IN JENKINS CREDENTIALS
+9. Create a Project in SONARQUBE with projectkey and update the user global permissions settings to do analysis on projectkey
+10. Update the Nexus Credentials in Jenkins Container /etc/maven/settings.xml file
+---------------------------------------------------------------------------------
+=> # Copy file from container to host
+docker cp jenkins:/etc/maven/settings.xml /path/on/host/settings.xml
+docker cp jenkins:/etc/maven/settings.xml /home/ubuntu/settings.xml
+=> # Edit the file on the host
+vi /path/on/host/settings.xml
+vi settings.xml
+---------------------------------------------------------------------------------
+Add or modify the <servers> section to include the necessary credentials for your Nexus repositories:
+        <server>
+            <id>nexus-releases</id>
+            <username>${env.NEXUS_USERNAME}</username>
+            <password>${env.NEXUS_PASSWORD}</password>
+        </server>
+        <server>
+            <id>nexus-snapshots</id>
+            <username>${env.NEXUS_USERNAME}</username>
+            <password>${env.NEXUS_PASSWORD}</password>
+        </server>
+=> # Copy the updated file back to the container
+docker cp /path/on/host/settings.xml jenkins:/etc/maven/settings.xml
+docker cp /home/ubuntu/settings.xml jenkins:/etc/maven/settings.xml
+=> # Restart the Jenkins Server
+docker restart jenkins
+-----------------------------------------------------------------------------------------------
+8. Regarding Pushing Docker Images to Nexus Repository 
+
+Nexus Repository Configuration: 
+Confirm that Nexus is correctly configured to handle HTTP or HTTPS requests. 
+The URL you use in the Docker login command should match the protocol used by the Nexus server.
+
+Docker Login Command: Ensure that you use the correct URL and protocol for Docker login. 
+For HTTP, the URL should not have https://:
+docker login http://3.85.30.4:8085/repository/docker-hosted-repo/ --username admin
+Enter Password:
+
+Update Docker Daemon Configuration for Insecure Registries
+
+If you are using HTTP and need to configure Docker to accept HTTP (insecure) registries:
+-----------------------
+Edit the Docker daemon configuration file (/etc/docker/daemon.json):
+sudo vi /etc/docker/daemon.json
+-----------------------
+Add the following configuration:
+{
+  "insecure-registries": ["3.85.30.4:8085"]
+}
+------------------------------
+sudo systemctl restart docker
+------------------------------
+-------------------------------------------------------------------------------------------------
+
+Finally Buidl the Job.
+
+==================================================================================================
