@@ -3,7 +3,7 @@
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
-    
+
     <parent>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-starter-parent</artifactId>
@@ -20,7 +20,7 @@
     <properties>
         <jdk.version>17</jdk.version>
         <spring.version>3.1.4</spring.version> <!-- Updated to match the Spring Boot version -->
-        <junit.version>5.8.2</junit.version>
+        <junit.jupiter.version>5.8.2</junit.jupiter.version> <!-- Correct JUnit version -->
         <log4j.version>2.14.1</log4j.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
@@ -64,25 +64,47 @@
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-test</artifactId>
             <scope>test</scope>
+            <exclusions>
+                <exclusion>
+                    <groupId>org.junit.vintage</groupId>
+                    <artifactId>junit-vintage-engine</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
-        
+
         <!-- Spring Boot Security -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-security</artifactId>
         </dependency>
 
+        <!-- JUnit Jupiter API for JUnit 5 -->
+        <dependency>
+            <groupId>org.junit.jupiter</groupId>
+            <artifactId>junit-jupiter-api</artifactId>
+            <version>${junit.jupiter.version}</version>
+            <scope>test</scope>
+        </dependency>
+
+        <!-- JUnit Jupiter Engine for running JUnit 5 tests -->
+        <dependency>
+            <groupId>org.junit.jupiter</groupId>
+            <artifactId>junit-jupiter-engine</artifactId>
+            <version>${junit.jupiter.version}</version>
+            <scope>test</scope>
+        </dependency>
+
         <!-- Testcontainers for MySQL and JUnit -->
         <dependency>
             <groupId>org.testcontainers</groupId>
             <artifactId>mysql</artifactId>
-            <version>1.19.0</version> <!-- Updated Testcontainers version -->
+            <version>1.19.0</version>
             <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>org.testcontainers</groupId>
             <artifactId>junit-jupiter</artifactId>
-            <version>1.19.0</version> <!-- Updated Testcontainers version -->
+            <version>1.19.0</version>
             <scope>test</scope>
         </dependency>
 
@@ -91,13 +113,8 @@
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-log4j2</artifactId>
         </dependency>
-       <dependency>
-             <groupId>org.junit.jupiter</groupId>
-             <artifactId>junit-jupiter-api</artifactId>
-             <version>5.8.2</version>
-             <scope>test</scope>
-      </dependency>
     </dependencies>
+
     <build>
         <plugins>
             <!-- Spring Boot Maven Plugin -->
@@ -118,7 +135,7 @@
             <plugin>
                 <groupId>org.sonarsource.scanner.maven</groupId>
                 <artifactId>sonar-maven-plugin</artifactId>
-                <version>3.9.1.2184</version> <!-- Updated SonarQube plugin version -->
+                <version>3.9.1.2184</version>
             </plugin>
 
             <!-- Jacoco Maven Plugin for Code Coverage -->
