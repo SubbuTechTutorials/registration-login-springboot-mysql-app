@@ -24,7 +24,7 @@ Push Docker Image: Upload the Docker image to a Nexus Docker repo.
 Cleanup: Remove unused Docker images.
 
 This automated pipeline ensures smooth continuous integration and delivery, making the development process efficient and reliable.
-![image](https://github.com/user-attachments/assets/ad5c0c24-85db-4825-9e40-28178ec0a5ef)
+![image](https://github.com/user-attachments/assets/8ac61f7c-5a2d-46dc-baa1-6dee7657c00a)
 
 
 
